@@ -1,0 +1,82 @@
+- hosts: localhost
+  connection: local
+  gather_facts: no
+
+  vars:
+    localphp: /var/www/html/conf/local.php
+
+  tasks:
+    - name: Setting schoolname in local.php
+      lineinfile: 
+        dest={{ localphp }} 
+        regexp="^\$conf\[.*tagline.*\]"
+        line="$conf['tagline'] = \'{{ lookup('env','SCHOOLNAME') }}\';"
+        state=present
+    
+    - name: Setting schoolname in local.php
+      lineinfile: 
+        dest={{ localphp }} 
+        regexp="^\$conf\[.*authtype.*\]"
+        line="$conf['authtype'] = '{{ lookup('env','AUTHTYPE') }}';"
+        state=present
+
+    - name: Setting LDAP Server in local.php
+      lineinfile: 
+        dest={{ localphp }} 
+        regexp="^\$conf\[.*plugin.*\]\[.*authldap.*\]\[.*server.*\]"
+        line="$conf['plugin']['authldap']['server'] =  'ldaps://{{ lookup('env','LDAPSERVER') }}:{{ lookup('env','LDAPPORT') }}';"
+        state=present
+        
+    - name: Setting LDAP Version in local.php
+      lineinfile: 
+        dest={{ localphp }} 
+        regexp="^\$conf\[.*plugin.*\]\[.*authldap.*\]\[.*version.*\]"
+        line="$conf['plugin']['authldap']['version'] = '3';"
+        state=present
+        
+    - name: Setting LDAP Port in local.php
+      lineinfile: 
+        dest={{ localphp }} 
+        regexp="^\$conf\[.*plugin.*\]\[.*authldap.*\]\[.*port.*\]"
+        line="$conf['plugin']['authldap']['port'] = \'{{ lookup('env','LDAPPORT') }}\';"
+        state=present
+        
+    - name: Setting LDAP GroupDelPrefix in local.php
+      lineinfile: 
+        dest={{ localphp }} 
+        regexp="^\$conf\[.*plugin.*\]\[.*authldap.*\]\[.*groupdelprefix.*\]"
+        line="$conf['plugin']['authldap']['groupdelprefix'] = \'{{ lookup('env','GROUPDELPREFIX') }}\';"
+        state=present
+
+
+    - name: Setting LDAP Usertree in local.php
+      lineinfile: 
+        dest={{ localphp }} 
+        regexp="^\$conf\[.*plugin.*\]\[.*authldap.*\]\[.*usertree.*\]"
+        line="$conf['plugin']['authldap']['usertree'] = \'{{ lookup('env','USERTREE') }}\';"
+        state=present
+
+    - name: Setting LDAP Grouptree in local.php
+      lineinfile: 
+        dest={{ localphp }} 
+        regexp="^\$conf\[.*plugin.*\]\[.*authldap.*\]\[.*grouptree.*\]"
+        line="$conf['plugin']['authldap']['grouptree'] = \'{{ lookup('env','GROUPTREE') }}\';"
+        state=present
+
+    - name: Setting LDAP Userfilter in local.php
+      lineinfile: 
+        dest={{ localphp }} 
+        regexp="^\$conf\[.*plugin.*\]\[.*authldap.*\]\[.*userfilter.*\]"
+        line="$conf['plugin']['authldap']['userfilter'] = \'{{ lookup('env','USERFILTER') }}\';"
+        state=present
+
+    - name: Setting LDAP Groupfilter in local.php
+      lineinfile: 
+        dest={{ localphp }} 
+        regexp="^\$conf\[.*plugin.*\]\[.*authldap.*\]\[.*groupfilter.*\]"
+        line="$conf['plugin']['authldap']['groupfilter'] = \'{{ lookup('env','GROUPFILTER') }}\';"
+        state=present
+
+
+
+        

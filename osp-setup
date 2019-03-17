@@ -1,0 +1,49 @@
+#!/bin/bash
+
+# Command to setup openschulportfolio
+# inside a docker container according to
+# environment variables coming from
+# docker-conpose / .env
+
+# This script uses ansible to setup 
+# the dokuwiki main config file
+
+# Checking, if all information is available
+
+[[ -z ${SCHOOLNAME} ]]  && (echo "Not all environment variables defined."; exit 1)
+[[ -z ${AUTHTYPE} ]]  && (echo "Not all environment variables defined."; exit 1)
+[[ -z ${BASEDN} ]]  && (echo "Not all environment variables defined."; exit 1)
+[[ -z ${LMN_VERSION} ]]  && (echo "Not all environment variables defined."; exit 1)
+[[ -z ${LDAPSERVER} ]]  && (echo "Not all environment variables defined."; exit 1)
+[[ -z ${USERTREE} ]]  && (echo "Not all environment variables defined."; exit 1)
+[[ -z ${GROUPTREE} ]]  && (echo "Not all environment variables defined."; exit 1)
+[[ -z ${LDAPPORT} ]]  && (echo "Not all environment variables defined."; exit 1)
+[[ -z ${USERFILTER} ]]  && (echo "Not all environment variables defined."; exit 1)
+[[ -z ${GROUPFILTER} ]]  && (echo "Not all environment variables defined."; exit 1)
+[[ -z ${GROUPDELPREFIX} ]]  && (echo "Not all environment variables defined."; exit 1)
+
+
+TEMPLATES="conf data"
+for tmpl in $TEMPLATES; do 
+	tplcopy="no"
+	[ "$(ls -A /var/www/html/${tmpl})" ] || tplcopy="yes"
+	if [ ${tplcopy} == "yes" ]; then 
+		echo -n "OSP-Setup: $tmpl is empty, copying template files to volume... "
+		cp -ar /var/lib/openschulportfolio/${tmpl}/* /var/www/html/${tmpl}/
+		chown -R www-data: /var/www/html/${tmpl}/
+		echo " done."
+	else
+		echo -n "OSP-Setup: $tmpl is not empty, no changes made."
+	fi
+done
+
+echo "Updating Plugins from container! ## FIXME Blacklist Plugins from compose!"
+cp -ar /var/lib/openschulportfolio/lib/plugins/* /var/www/html/lib/plugins/
+
+
+if [ -e /root/lmn-configure.yml ]; then 
+	ansible-playbook /root/lmn-configure.yml
+else
+	echo "/root/lmn-configure.yml not found"
+	exit 1
+fi
